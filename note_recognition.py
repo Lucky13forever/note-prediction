@@ -29,6 +29,7 @@ def main(file, note_file=None, note_starts_file=None, plot_starts=False, plot_ff
             for line in f:
                 actual_notes.append(line.strip())
 
+    print("File is ", file)
     song = AudioSegment.from_file(file)
     song = song.high_pass_filter(80, order=4)
 
@@ -146,7 +147,7 @@ def predict_notes(song, starts, actual_notes, plot_fft_indices):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("file")
+    parser.add_argument("--file")
     parser.add_argument("--note-file", type=str)
     parser.add_argument("--note-starts-file", type=str)
     parser.add_argument("--plot-starts", action="store_true")
@@ -161,6 +162,6 @@ if __name__ == "__main__":
         args.file,
         note_file=args.note_file,
         note_starts_file=args.note_starts_file,
-        plot_starts=args.plot_starts,
+        plot_starts=(args.plot_starts or False),
         plot_fft_indices=(args.plot_fft_index or []),
     )

@@ -3,6 +3,7 @@ from collections import Counter
 
 import numpy as np
 import scipy
+from scipy.fft import fft as ftt_func
 from pydub.utils import get_array_type
 from Levenshtein import distance
 
@@ -40,7 +41,7 @@ def frequency_spectrum(sample, max_frequency=800):
     freq_array = freq_array[: (n // 2)]  # one side frequency range
 
     raw_audio_data = raw_audio_data - np.average(raw_audio_data)  # zero-centering
-    freq_magnitude = scipy.fft(raw_audio_data)  # fft computing and normalization
+    freq_magnitude = ftt_func(raw_audio_data)  # fft computing and normalization
     freq_magnitude = freq_magnitude[: (n // 2)]  # one side
 
     if max_frequency:
