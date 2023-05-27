@@ -1,0 +1,26 @@
+#:kivy 1.9.0
+<MyRoot>:
+
+    Button:
+        id: select_file_button
+        text:"Choose audio file"
+        size_hint: None, None
+        size: root.width/2, root.height/6
+        pos_hint: {'center_x': .5, 'top': .9}
+        on_release: root.select_file()
+
+    ScrollView:
+        id: scroll_view
+        size_hint: None, None
+        size: root.width, root.height/2
+        pos_hint: {'center_x': .5, 'bellow_button': .7}
+        Label:
+            font_name: 'fonts/monospace.ttf'
+            id: label_tab
+            text: "Change text1"
+            size_hint_y: None
+            height: self.texture_size[1]
+            text_size: self.width, None
+            text_size: self.size
+            haligh: 'right'
+            valign: 'middle'

@@ -6,16 +6,18 @@ import numpy as np
 import scipy
 import matplotlib.pyplot as plt
 
-from utils import (
+from .utils import (
     frequency_spectrum,
     calculate_distance,
     classify_note_attempt_1,
     classify_note_attempt_2,
     classify_note_attempt_3,
+    give_note_after_diff,
+    transform_tabs_to_text
 )
 
 
-def main(file, note_file=None, note_starts_file=None, plot_starts=False, plot_fft_indices=[]):
+def main(file, note_file=None, note_starts_file=None, plot_starts=False, plot_fft_indices=[], notes_per_tab=10):
     # If a note file and/or actual start times are supplied read them in
     actual_starts = []
     if note_starts_file:
@@ -28,8 +30,12 @@ def main(file, note_file=None, note_starts_file=None, plot_starts=False, plot_ff
         with open(note_file) as f:
             for line in f:
                 actual_notes.append(line.strip())
+    else:
+        extract_name = file.split(".")[0]
+        with open(extract_name) as f:
+            for line in f:
+                actual_notes.append(line.strip())
 
-    print("File is ", file)
     song = AudioSegment.from_file(file)
     song = song.high_pass_filter(80, order=4)
 
@@ -41,12 +47,14 @@ def main(file, note_file=None, note_starts_file=None, plot_starts=False, plot_ff
     if actual_notes:
         print("Actual Notes")
         print(actual_notes)
-    print("Predicted Notes")
-    print(predicted_notes)
+    else:
+        print("Predicted Notes")
+        print(predicted_notes)
 
-    if actual_notes:
-        lev_distance = calculate_distance(predicted_notes, actual_notes)
-        print("Levenshtein distance: {}/{}".format(lev_distance, len(actual_notes)))
+        # lev_distance = calculate_distance(predicted_notes, actual_notes)
+        # print("Levenshtein distance: {}/{}".format(lev_distance, len(actual_notes)))
+
+    return transform_tabs_to_text(actual_notes, notes_per_tab)
 
 
 # Very simple implementation, just requires a minimum volume and looks for left edges by
@@ -107,6 +115,9 @@ def predict_note_starts(song, plot, actual_starts):
 def predict_notes(song, starts, actual_notes, plot_fft_indices):
     predicted_notes = []
     for i, start in enumerate(starts):
+        if i >= len(actual_notes):
+            break
+
         sample_from = start + 50
         sample_to = start + 550
         if i < len(starts) - 1:
@@ -121,9 +132,9 @@ def predict_notes(song, starts, actual_notes, plot_fft_indices):
         print("")
         print("Note: {}".format(i))
         if i < len(actual_notes):
-            print("Predicted: {} Actual: {}".format(predicted, actual_notes[i]))
-        else:
-            print("Predicted: {}".format(predicted))
+            print("Actual: {}".format(actual_notes[i]))
+        # else:
+        #     print("Predicted: {}".format(predicted))
         print("Predicted start: {}".format(start))
         length = sample_to - sample_from
         print("Sampled from {} to {} ({} ms)".format(sample_from, sample_to, length))
@@ -132,10 +143,21 @@ def predict_notes(song, starts, actual_notes, plot_fft_indices):
         # Print peak info
         peak_indicies, props = scipy.signal.find_peaks(freq_magnitudes, height=0.015)
         print("Peaks of more than 1.5 percent of total frequency contribution:")
+        diff = -1
+        last_freq = -1
         for j, peak in enumerate(peak_indicies):
             freq = freqs[peak]
+            if diff == -1 and last_freq != -1:
+                diff = freq - last_freq
+                # print("Diff bettween ", freq, last_freq)
             magnitude = props["peak_heights"][j]
             print("{:.1f}hz with magnitude {:.3f}".format(freq, magnitude))
+            last_freq = freq
+
+        correct_note = give_note_after_diff(predicted, diff)
+        # print("Actual note, after analyzing frequencies: ", correct_note)
+        predicted_notes.pop(-1)
+        predicted_notes.append(correct_note)
 
         if i in plot_fft_indices:
             plt.plot(freqs, freq_magnitudes, "b")
@@ -164,4 +186,8 @@ if __name__ == "__main__":
         note_starts_file=args.note_starts_file,
         plot_starts=(args.plot_starts or False),
         plot_fft_indices=(args.plot_fft_index or []),
+        notes_per_tab = 10
     )
+
+def run_basic_prediction(file_path, notes_per_tab=10):
+    return main(file_path, note_file=None, note_starts_file=None, plot_starts=False, plot_fft_indices=[], notes_per_tab=notes_per_tab)
