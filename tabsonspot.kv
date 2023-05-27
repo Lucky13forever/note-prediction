@@ -5,22 +5,47 @@
         id: select_file_button
         text:"Choose audio file"
         size_hint: None, None
-        size: root.width/2, root.height/6
+        size: root.width/2, root.height/10
         pos_hint: {'center_x': .5, 'top': .9}
         on_release: root.select_file()
 
+    Button:
+        id: show_popup_button
+        text:"Save tab"
+        size_hint: None, None
+        size: root.width/2, root.height/10
+        pos_hint: {'center_x': .5, 'top': .8}
+        on_release: root.show_popup()
+
     ScrollView:
-        id: scroll_view
         size_hint: None, None
         size: root.width, root.height/2
         pos_hint: {'center_x': .5, 'bellow_button': .7}
         Label:
-            font_name: 'fonts/monospace.ttf'
             id: label_tab
-            text: "Change text1"
+            font_name: "fonts/monospace.ttf"
+            text: "Your tabs will appear here"
             size_hint_y: None
             height: self.texture_size[1]
             text_size: self.width, None
-            text_size: self.size
-            haligh: 'right'
-            valign: 'middle'
+            padding_x: self.width * 0.2
+
+<MyPopup>:
+    TextInput:
+        id: tab_name
+        size_hint: 0.6, 0.2
+        pos_hint: {"x": 0.2, "top": 1}
+
+    Button:
+        text: "Save"
+        size_hint: None, None
+        pos_hint: {"x": 0.75, "top": 0.1}
+        size: root.width/4, root.height/8
+        on_release: root.save_tab()
+
+    Button:
+        text: "Cancel"
+        pos_hint: {"x": 0, "top": 0.1}
+        size_hint: None, None
+        size: root.width/4, root.height/8
+        on_release: root.dismiss_popup()
