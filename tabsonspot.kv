@@ -68,6 +68,20 @@ WindowManager:
     name: "second"
     Button:
         text: "Go Back"
+        size_hint: None, None
+        size: root.width/6,root.height/10
+        pos_hint: {"x": 0.85, "top": 1}
         on_release:
             app.root.current = "main"
             root.manager.transition.direction = "right"
+
+    ScrollView:
+        id: scroll_view
+        size_hint: None, None
+        size: root.width, root.height/2
+        pos_hint: {'center_x': .5, 'bellow_button': .9}
+        BoxLayout:
+            id: box_layout
+            orientation: 'vertical'
+            size_hint_y: None
+            height: self.minimum_height

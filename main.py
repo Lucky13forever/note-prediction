@@ -5,6 +5,7 @@ from os import listdir
 from os.path import isfile, join
 from kivy.app import App
 from kivy.lang import Builder
+from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, FloatLayout
 from note_recognition.note_recognition import run_basic_prediction
@@ -43,11 +44,15 @@ class MainWindow(Screen):
         show.set_window(popupWindow)
         popupWindow.open()
 
-    def show_saved(self):
-        pass
-
 class SecondWindow(Screen):
-    pass
+
+    def on_enter(self, *args):
+        super().on_enter(*args)
+        self.add_label('Hello, world!')
+
+    def add_label(self, text):
+        label = Label(text=text, size_hint_y=None, height=40)
+        self.ids['box_layout'].add_widget(label)
 
 class WindowManager(ScreenManager):
     pass
