@@ -123,6 +123,8 @@ class MyPopup(FloatLayout):
     def save_tab_in_file(self, name, content):
         dir = os.path.dirname(os.path.realpath(__file__)) + "/saved"
         with open(f"{dir}/{self.give_file_name(dir)}.json", "w") as file:
+            if content is None:
+                content = "Empty"
             file.write(json.dumps({"name": name, "content": content}))
 
 
