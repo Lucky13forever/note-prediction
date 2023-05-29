@@ -1,23 +1,27 @@
 import kivy
+import os
+import json
+from os import listdir
+from os.path import isfile, join
 from kivy.app import App
+from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, FloatLayout
 from note_recognition.note_recognition import run_basic_prediction
 from note_recognition.utils import transform_notes_to_tab
 from kivy.config import Config
 from kivy.uix.popup import Popup
+from kivy.lang import Builder
 
-kivy.require('1.9.0')
 Config.set('graphics', 'width', '600')
 Config.set('graphics', 'height', '800')
 
 saved_tabs = dict()
 current_tabs = None
 
-class MyRoot(FloatLayout):
-
-    def __init__(self):
-        super(MyRoot, self).__init__()
+class MainWindow(Screen):
+    def __init__(self, **kwargs):
+        super(MainWindow, self).__init__(**kwargs)
 
     def select_file(self):
         from plyer import filechooser
@@ -28,6 +32,7 @@ class MyRoot(FloatLayout):
         tabs = run_basic_prediction(selection[0])
         print("\n" * 2)
         print(tabs)
+        print(self.ids)
         self.ids.label_tab.text = tabs
         global current_tabs
         current_tabs = tabs
@@ -38,6 +43,16 @@ class MyRoot(FloatLayout):
         show.set_window(popupWindow)
         popupWindow.open()
 
+    def show_saved(self):
+        pass
+
+class SecondWindow(Screen):
+    pass
+
+class WindowManager(ScreenManager):
+    pass
+
+
 class MyPopup(FloatLayout):
 
     def dismiss_popup(self):
@@ -47,17 +62,26 @@ class MyPopup(FloatLayout):
         self.window = window
 
     def save_tab(self):
-        # print("save tab ", self.ids.tab_name.text)
-        saved_tabs[self.ids.tab_name.text] = current_tabs
-        print(saved_tabs)
+        self.save_tab_in_file(self.ids.tab_name.text, current_tabs)
         self.dismiss_popup()
+
+    def give_file_name(self, path):
+        onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
+        return f"tab{len(onlyfiles) + 1}"
+
+
+    def save_tab_in_file(self, name, content):
+        dir = os.path.dirname(os.path.realpath(__file__)) + "/saved"
+        with open(f"{dir}/{self.give_file_name(dir)}.json", "w") as file:
+            file.write(json.dumps({"name": name, "content": content}))
+
+
+kv = Builder.load_file("./tabsonspot.kv")
 
 class TabsOnSpot(App):
 
     def build(self):
-       return MyRoot()
+        return kv
 
-
-
-obj = TabsOnSpot()
-obj.run()
+if __name__ == '__main__':
+    TabsOnSpot().run()
