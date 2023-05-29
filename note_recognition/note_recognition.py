@@ -32,6 +32,7 @@ def main(file, note_file=None, note_starts_file=None, plot_starts=False, plot_ff
                 actual_notes.append(line.strip())
     else:
         extract_name = file.split(".")[0]
+        extract_name = extract_name.replace("songs", "other")
         with open(extract_name) as f:
             for line in f:
                 actual_notes.append(line.strip())

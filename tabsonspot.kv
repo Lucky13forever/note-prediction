@@ -111,12 +111,9 @@ WindowManager:
             height: self.minimum_height
             Label:
                 id: title_tab
-                font_name: "fonts/monospace.ttf"
                 text: ""
-                size_hint: None, None
-                pos_hint: {'center_x': .5, 'top': .9}
-                height: self.texture_size[1]
-                text_size: self.width, None
+                size_hint_y: None
+                font_size: 30
 
             Label:
                 id: title_content
