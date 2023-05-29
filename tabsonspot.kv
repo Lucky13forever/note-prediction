@@ -2,6 +2,7 @@
 WindowManager:
     MainWindow:
     SecondWindow:
+    ThirdWindow:
 
 <MainWindow>:
     name: "main"
@@ -78,10 +79,52 @@ WindowManager:
     ScrollView:
         id: scroll_view
         size_hint: None, None
-        size: root.width, root.height/2
+        size: root.width, root.height - root.height/10
         pos_hint: {'center_x': .5, 'bellow_button': .9}
         BoxLayout:
             id: box_layout
             orientation: 'vertical'
             size_hint_y: None
             height: self.minimum_height
+
+<ThirdWindow>:
+    name: "third"
+    Button:
+        id: show_popup_button
+        text: "Go Back"
+        size_hint: None, None
+        size: root.width/6,root.height/10
+        pos_hint: {"x": 0.85, "top": 1}
+        on_release:
+            app.root.current = "second"
+            root.manager.transition.direction = "right"
+
+    ScrollView:
+        id: scroll_view
+        size_hint: None, None
+        size: root.width, root.height - root.height/10
+        pos_hint: {'center_x': .5, 'bellow_button': .9}
+        BoxLayout:
+            id: box_layout
+            orientation: 'vertical'
+            size_hint_y: None
+            height: self.minimum_height
+            Label:
+                id: title_tab
+                font_name: "fonts/monospace.ttf"
+                text: ""
+                size_hint: None, None
+                pos_hint: {'center_x': .5, 'top': .9}
+                height: self.texture_size[1]
+                text_size: self.width, None
+
+            Label:
+                id: title_content
+                font_name: "fonts/monospace.ttf"
+                text: ""
+                size_hint: None, None
+                pos_hint: {'center_x': .5, 'top': .7}
+                height: self.texture_size[1]
+                width: root.width
+                text_size: self.width, None
+                padding_x: self.width * 0.2

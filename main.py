@@ -13,11 +13,13 @@ from note_recognition.utils import transform_notes_to_tab
 from kivy.config import Config
 from kivy.uix.popup import Popup
 from kivy.lang import Builder
+from kivy.properties import StringProperty
+
 
 Config.set('graphics', 'width', '600')
 Config.set('graphics', 'height', '800')
 
-saved_tabs = dict()
+saved_tabs = []
 current_tabs = None
 
 class MainWindow(Screen):
@@ -44,15 +46,58 @@ class MainWindow(Screen):
         show.set_window(popupWindow)
         popupWindow.open()
 
+
 class SecondWindow(Screen):
 
     def on_enter(self, *args):
         super().on_enter(*args)
-        self.add_label('Hello, world!')
+        self.contor = 0
+        self.ids['box_layout'].clear_widgets()
+        self.add_labels()
 
-    def add_label(self, text):
-        label = Label(text=text, size_hint_y=None, height=40)
-        self.ids['box_layout'].add_widget(label)
+    def add_labels(self):
+        dir = os.path.dirname(os.path.realpath(__file__)) + "/saved/"
+        onlyfiles = [f for f in listdir(dir) if isfile(join(dir, f))]
+
+        global saved_tabs
+        saved_tabs = []
+        for file_name in onlyfiles:
+            with open(dir + file_name, "r") as file:
+                data = json.loads(file.read())
+                saved_tabs.append(data["content"])
+                self.contor += 1
+                label = ClickableLabel(text=str(self.contor) + ". " + data["name"], size_hint_y=None, height=40, font_size=20)
+                label.bind(on_release=self.on_label_click)
+                self.ids['box_layout'].add_widget(label, index=0)
+
+    def on_label_click(self, label):
+        screen_manager = App.get_running_app().root
+        third_screen = screen_manager.get_screen('third')
+        third_screen.tabs_title = label.text.split(". ")[1]
+        third_screen.tabs_content = saved_tabs[int(label.text.split(". ")[0]) - 1]
+        screen_manager.current = 'third'  # switch to the third screen
+        App.get_running_app().root.current = "third"
+
+class ThirdWindow(Screen):
+    tabs_title = StringProperty('')
+    tabs_content = StringProperty('')
+
+    def on_enter(self, *args):
+        super().on_enter(*args)
+        self.ids['title_tab'].text = self.tabs_title
+        self.ids['title_content'].text = self.tabs_content
+
+from kivy.uix.button import Button
+
+class ClickableLabel(Button):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.background_color = (0, 0, 0, 0)  # makes button background transparent
+        self.color = (1, 1, 1, 1)  # text color is black
+
+    def on_release(self):
+        print(f'The label "{self.text}" was clicked!')
+
 
 class WindowManager(ScreenManager):
     pass
